@@ -37,6 +37,8 @@ module.exports = {
       filename: "remoteEntry.js",
       exposes: {
         "./Button": "./src/Button",
+        "./nodes/OperationNode": "./src/nodes/OperationNode",
+        "./nodes/NumberNode": "./src/nodes/NumberNode",
       },
       shared: [
         {
