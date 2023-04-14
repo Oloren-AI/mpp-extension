@@ -1,19 +1,6 @@
 import "twin.macro";
 import styledImport, { CSSProp, css as cssImport } from "styled-components";
-import type { Node, Edge } from "reactflow";
-
-interface FlowNodeData {
-  data: Json;
-  num_inputs: number;
-  num_outputs: number;
-  operator: string;
-  hierarchy: string[];
-  special?: boolean;
-  logs?: string;
-  status?: "idle" | "running" | "finished" | "error";
-}
-
-declare type FlowNode = Node<FlowNodeData>;
+import { DOMAttributes } from "react";
 
 declare module "twin.macro" {
   // The styled and css imports
@@ -37,7 +24,7 @@ declare module "react" {
 // The 'as' prop on styled components
 declare global {
   namespace JSX {
-    interface IntrinsicAttributes<T> extends DOMAttributes<T> {
+    interface IntrinsicAttributes extends DOMAttributes<any> {
       as?: string;
     }
   }
