@@ -3,6 +3,7 @@ const { ModuleFederationPlugin } = require("webpack").container;
 
 const path = require("path");
 const pkg = require("./package.json");
+const expose = require("./expose.json");
 
 module.exports = {
   entry: "./src/index",
@@ -35,11 +36,7 @@ module.exports = {
     new ModuleFederationPlugin({
       name: "app2",
       filename: "remoteEntry.js",
-      exposes: {
-        "./Button": "./src/Button",
-        "./nodes/OperationNode": "./src/nodes/OperationNode",
-        "./nodes/NumberNode": "./src/nodes/NumberNode",
-      },
+      exposes: expose,
       shared: [
         {
           react: {

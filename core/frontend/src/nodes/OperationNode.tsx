@@ -15,7 +15,7 @@ export default function OperationNode({ node, setNode }: NodeProps) {
   const options = ["Add", "Subtract", "Multiply", "Divide"] as const;
 
   useEffect(() => {
-    setNode((nd) => ({ ...nd, data: options[0] }));
+    setNode((nd) => ({ ...nd, data: options[0], operator: `operation` }));
   }, []);
 
   const val = z.enum(options).safeParse(node.data) ? node.data : options[0];

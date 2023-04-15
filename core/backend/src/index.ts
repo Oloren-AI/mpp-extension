@@ -4,6 +4,8 @@ import { FlowNodeData, Json } from "./util";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { z } from "zod";
 
+const PORT = 100;
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -14,6 +16,21 @@ app.get("/", (req, res) => {
 });
 
 app.use("/ui", express.static("../frontend/dist"));
+
+// import expose from "../frontend/expose.json";
+import fs from "fs";
+
+// Frontend will call this route to get all the nodes and operator
+app.get("/directory", (req, res) => {
+  fs.readFile("../frontend/expose.json", (err, data) => {
+    if (err) throw err;
+    const nodes = Object.keys(JSON.parse(data.toString()));
+    res.send({
+      nodes,
+      operators: [`${req.protocol}://${req.hostname}:${PORT}/operation`],
+    });
+  });
+});
 
 // Actual computation stuff goes here
 
@@ -46,6 +63,6 @@ app.post("/operation", (req, res) => {
   // check node data
 });
 
-app.listen(100, () => {
+app.listen(PORT, () => {
   console.log("🚀 Server ready at: http://localhost:100");
 });
