@@ -10,7 +10,7 @@ interface NodeProps {
 
 export default function NumberNode({ node, setNode }: NodeProps) {
   useEffect(() => {
-    setNode((nd) => ({ ...nd, data: 0 }));
+    setNode((nd) => ({ ...nd, data: 0, operator: "extractdata" }));
   }, []);
 
   const val = z.number().safeParse(node.data) ? (node.data as number) : 0;
