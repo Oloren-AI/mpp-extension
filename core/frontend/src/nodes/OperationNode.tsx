@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const { Text } = Typography;
 
-import type { FlowNodeData, NodeSetter } from "../util";
+import { baseUrl, type FlowNodeData, type NodeSetter } from "../util";
 
 interface NodeProps {
   node: FlowNodeData;
@@ -23,7 +23,7 @@ export default function OperationNode({
     setNode((nd) => ({
       ...nd,
       data: options[0],
-      operator: `operation`,
+      operator: `${baseUrl(node.remote.url)}/operation`, // specify operator url as such
       num_inputs: 2,
       num_outputs: 1,
     }));

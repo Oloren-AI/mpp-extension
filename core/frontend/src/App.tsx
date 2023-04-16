@@ -18,6 +18,11 @@ function NodeTester({
     hierarchy: [],
     num_inputs: 1,
     num_outputs: 1,
+    remote: {
+      module: "",
+      url: "",
+      scope: "",
+    },
   });
 
   return (

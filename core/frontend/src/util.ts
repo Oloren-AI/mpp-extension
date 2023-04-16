@@ -10,6 +10,18 @@ export interface FlowNodeData {
   special?: boolean;
   logs?: string;
   status?: "idle" | "running" | "finished" | "error";
+  remote: {
+    module: string;
+    scope: string;
+    url: string;
+  };
 }
 
 export type NodeSetter = React.Dispatch<React.SetStateAction<FlowNodeData>>;
+
+export function baseUrl(url: string) {
+  const pathArray = url.split("/");
+  const protocol = pathArray[0];
+  const host = pathArray[2];
+  return protocol + "//" + host;
+}
