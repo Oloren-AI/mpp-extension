@@ -55,22 +55,21 @@ FUNCTIONS.map((func) => {
 
     console.log("HELLO");
 
-    const output = func(node, inputs);
-
-    console.log("Finished with output ", output);
-
-    fetch(`${url}/node_finished`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        node: id,
-        output: output,
-      }),
-    });
-
     try {
+      const output = func(node, inputs);
+
+      console.log("Finished with output ", output);
+
+      fetch(`${url}/node_finished`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          node: id,
+          output: output,
+        }),
+      });
     } catch (e) {
       fetch(`${url}/node_error`, {
         method: "POST",
