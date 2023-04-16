@@ -3,7 +3,7 @@ const { ModuleFederationPlugin } = require("webpack").container;
 
 const path = require("path");
 const pkg = require("./package.json");
-const expose = require("./expose.json");
+const config = require("./config.json");
 
 module.exports = {
   entry: "./src/index",
@@ -34,9 +34,9 @@ module.exports = {
   },
   plugins: [
     new ModuleFederationPlugin({
-      name: "app2",
+      name: config["name"],
       filename: "remoteEntry.js",
-      exposes: expose,
+      exposes: config["nodes"],
       shared: [
         {
           react: {

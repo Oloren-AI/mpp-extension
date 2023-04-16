@@ -1,8 +1,8 @@
 import cors from "cors";
 import express, { ErrorRequestHandler } from "express";
 import { FlowNodeData, Json } from "./util";
-import { createProxyMiddleware } from "http-proxy-middleware";
-import { z } from "zod";
+import fs from "fs";
+import { FUNCTIONS } from "./functions";
 
 const PORT = 100;
 
@@ -17,50 +17,72 @@ app.get("/", (req, res) => {
 
 app.use("/ui", express.static("../frontend/dist"));
 
-// import expose from "../frontend/expose.json";
-import fs from "fs";
-
 // Frontend will call this route to get all the nodes and operator
 app.get("/directory", (req, res) => {
-  fs.readFile("../frontend/expose.json", (err, data) => {
+  const hostname = req.headers["x-forwarded-host"] || req.headers.host;
+
+  fs.readFile("../frontend/config.json", (err, data) => {
     if (err) throw err;
-    const nodes = Object.keys(JSON.parse(data.toString()));
+    const config = JSON.parse(data.toString());
+    const nodes = Object.keys(config["nodes"]);
     res.send({
-      nodes,
-      operators: [`${req.protocol}://${req.hostname}:${PORT}/operation`],
+      nodes: nodes.map((node) => ({
+        module: node,
+        scope: config["name"], // TODO: auto extract this from some json file
+        url: `/ui/remoteEntry.js`,
+      })),
+      operators: Object.fromEntries(
+        FUNCTIONS.map((func) => [func.name, `/operator/${func.name}`])
+      ),
     });
   });
 });
 
-// Actual computation stuff goes here
+FUNCTIONS.map((func) => {
+  app.post(`/operator/${func.name}`, (req, res) => {
+    const {
+      node,
+      inputs,
+      url,
+      id,
+    }: { node: FlowNodeData; inputs: Json[]; url: string; id: number } =
+      req.body.json;
+
+    res.send("Ok");
+
+    try {
+      const output = func(node, inputs);
+
+      fetch(`${url}/node_finish`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          node: id,
+          output: output,
+        }),
+      });
+    } catch (e) {
+      fetch(`${url}/node_error`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          node: id,
+          error: String((e as Error).stack),
+        }),
+      });
+    }
+  });
+});
 
 app.post("/operation", (req, res) => {
   const { node, inputs }: { node: FlowNodeData; inputs: Json[] } =
     req.body.json;
 
   res.send("Ok");
-
-  // check if inputs are numbers
-  const parsedInputs = z.array(z.number()).length(2).safeParse(inputs);
-
-  if (parsedInputs.success) {
-    if (node.data === "add") return parsedInputs.data[0] + parsedInputs.data[1];
-    else if (node.data === "subtract")
-      return parsedInputs.data[0] - parsedInputs.data[1];
-    else if (node.data === "multiply")
-      return parsedInputs.data[0] * parsedInputs.data[1];
-    else if (node.data === "divide")
-      return parsedInputs.data[0] / parsedInputs.data[1];
-    else
-      throw new Error(
-        "Invalid operator. Must be one of add, subtract, multiply, or divide"
-      );
-  } else
-    throw new Error(
-      `Inputs must be list of two numbers, received ${JSON.stringify(inputs)}`
-    );
-
-  // check node data
 });
 
 app.listen(PORT, () => {

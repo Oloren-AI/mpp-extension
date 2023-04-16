@@ -1,5 +1,0 @@
-{
-  "./Button": "./src/Button",
-  "./nodes/OperationNode": "./src/nodes/OperationNode",
-  "./nodes/NumberNode": "./src/nodes/NumberNode"
-}

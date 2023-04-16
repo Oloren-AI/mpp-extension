@@ -9,13 +9,25 @@ import type { FlowNodeData, NodeSetter } from "../util";
 interface NodeProps {
   node: FlowNodeData;
   setNode: NodeSetter;
+  callAfterUpdateInpOuts?: () => void;
 }
 
-export default function OperationNode({ node, setNode }: NodeProps) {
+export default function OperationNode({
+  callAfterUpdateInpOuts = () => {},
+  node,
+  setNode,
+}: NodeProps) {
   const options = ["Add", "Subtract", "Multiply", "Divide"] as const;
 
   useEffect(() => {
-    setNode((nd) => ({ ...nd, data: options[0], operator: `operation` }));
+    setNode((nd) => ({
+      ...nd,
+      data: options[0],
+      operator: `operation`,
+      num_inputs: 2,
+      num_outputs: 1,
+    }));
+    callAfterUpdateInpOuts();
   }, []);
 
   const val = z.enum(options).safeParse(node.data) ? node.data : options[0];

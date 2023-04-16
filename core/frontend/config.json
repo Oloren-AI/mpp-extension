@@ -1,0 +1,7 @@
+{
+  "name": "calculator",
+  "nodes": {
+    "./nodes/OperationNode": "./src/nodes/OperationNode",
+    "./nodes/NumberNode": "./src/nodes/NumberNode"
+  }
+}

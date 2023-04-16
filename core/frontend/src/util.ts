@@ -1,6 +1,7 @@
 type Json = string | number | boolean | Json[] | { [key: string]: Json };
 
 export interface FlowNodeData {
+  id: string;
   data: Json;
   num_inputs: number;
   num_outputs: number;

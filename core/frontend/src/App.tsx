@@ -12,6 +12,7 @@ function NodeTester({
   Node: React.FC<{ node: FlowNodeData; setNode: NodeSetter }>;
 }) {
   const [node, setNode] = React.useState<FlowNodeData>({
+    id: "node-1",
     data: {},
     operator: "",
     hierarchy: [],
