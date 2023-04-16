@@ -23,7 +23,7 @@ export default function OperationNode({
     setNode((nd) => ({
       ...nd,
       data: options[0],
-      operator: `${baseUrl(node.remote.url)}/operation`, // specify operator url as such
+      operator: `${baseUrl(node.remote.url)}/operator/operation`, // specify operator url as such
       num_inputs: 2,
       num_outputs: 1,
     }));
@@ -36,6 +36,7 @@ export default function OperationNode({
     <div tw="flex flex-row space-x-2 items-center">
       <Text>Elementary Operation: </Text>
       <Select
+        className="nodrag"
         value={val}
         options={options.map((op) => ({ label: op, value: op }))}
         onChange={(e) => {

@@ -29,6 +29,7 @@ export default function NumberNode({
 
   return (
     <InputNumber
+      className="nodrag"
       value={val}
       onChange={(e) => {
         if (e != undefined) setNode((nd) => ({ ...nd, data: e }));

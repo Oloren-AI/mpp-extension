@@ -3,6 +3,7 @@ import express, { ErrorRequestHandler } from "express";
 import { FlowNodeData, Json } from "./util";
 import fs from "fs";
 import { FUNCTIONS } from "./functions";
+import fetch from "node-fetch";
 
 const PORT = 100;
 
@@ -46,23 +47,30 @@ FUNCTIONS.map((func) => {
       url,
       id,
     }: { node: FlowNodeData; inputs: Json[]; url: string; id: number } =
-      req.body.json;
+      req.body;
+
+    console.log("HI");
 
     res.send("Ok");
 
-    try {
-      const output = func(node, inputs);
+    console.log("HELLO");
 
-      fetch(`${url}/node_finish`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          node: id,
-          output: output,
-        }),
-      });
+    const output = func(node, inputs);
+
+    console.log("Finished with output ", output);
+
+    fetch(`${url}/node_finished`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        node: id,
+        output: output,
+      }),
+    });
+
+    try {
     } catch (e) {
       fetch(`${url}/node_error`, {
         method: "POST",
@@ -76,13 +84,6 @@ FUNCTIONS.map((func) => {
       });
     }
   });
-});
-
-app.post("/operation", (req, res) => {
-  const { node, inputs }: { node: FlowNodeData; inputs: Json[] } =
-    req.body.json;
-
-  res.send("Ok");
 });
 
 app.listen(PORT, () => {
