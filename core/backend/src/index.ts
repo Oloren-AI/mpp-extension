@@ -44,10 +44,11 @@ FUNCTIONS.map((func) => {
     const {
       node,
       inputs,
-      url,
       id,
     }: { node: FlowNodeData; inputs: Json[]; url: string; id: number } =
       req.body;
+
+    const url = process.env.DISPATCHER_URL;
 
     res.send("Ok");
 
