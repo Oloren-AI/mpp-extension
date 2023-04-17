@@ -49,11 +49,7 @@ FUNCTIONS.map((func) => {
     }: { node: FlowNodeData; inputs: Json[]; url: string; id: number } =
       req.body;
 
-    console.log("HI");
-
     res.send("Ok");
-
-    console.log("HELLO");
 
     try {
       const output = func(node, inputs);
