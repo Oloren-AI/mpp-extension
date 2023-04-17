@@ -2,7 +2,7 @@ FROM node:19
 
 WORKDIR /usr/app
 
-RUN npm i -g pm2 pnpm
+RUN npm i -g pnpm
 
 COPY package.json ./
 COPY pnpm-lock.json ./
@@ -13,6 +13,8 @@ COPY core/frontend/package.json ./core/frontend/package.json
 RUN pnpm i
 
 COPY . .
+
+RUN pnpm turbo dev
 
 EXPOSE 80
 
