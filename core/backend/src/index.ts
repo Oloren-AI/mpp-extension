@@ -5,7 +5,7 @@ import fs from "fs";
 import { FUNCTIONS } from "./functions";
 import fetch from "node-fetch";
 
-const PORT = 100;
+const PORT = 80;
 
 const app = express();
 app.use(cors());
@@ -82,5 +82,5 @@ FUNCTIONS.map((func) => {
 });
 
 app.listen(PORT, () => {
-  console.log("🚀 Server ready at: http://localhost:100");
+  console.log(`🚀 Server ready at: http://localhost:${PORT}`);
 });
