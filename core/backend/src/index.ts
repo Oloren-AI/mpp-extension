@@ -45,10 +45,10 @@ FUNCTIONS.map((func) => {
       node,
       inputs,
       id,
-    }: { node: FlowNodeData; inputs: Json[]; url: string; id: number } =
+    }: { node: FlowNodeData; inputs: Json[]; id: number } =
       req.body;
 
-    const url = process.env.DISPATCHER_URL;
+    const url = "http://" +  process.env.DISPATCHER_URL;
 
     res.send("Ok");
 
