@@ -98,7 +98,7 @@ if (process.env.NODE_ENV === "production") {
 
     const server = app.listen(port, () => {
       const { port } = server.address() as AddressInfo
-      console.log(`🚀 Server ready at: http://localhost:${port}`);
+      console.log(`🚀 Extension Running at http://localhost:${port}`);
       if(process.env.NODE_ENV !== "production"){
         fs.writeFile(".port", port.toString(), (err) => {
           if (err) throw err;

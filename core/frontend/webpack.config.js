@@ -8,6 +8,7 @@ const config = require("./config.json");
 module.exports = {
   entry: "./src/index",
   mode: "development",
+  stats: 'errors-only',
   devServer: {
     static: {
       directory: path.join(__dirname, "dist"),
