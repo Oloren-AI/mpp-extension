@@ -4,8 +4,7 @@ import { FlowNodeData, Json } from "./util";
 import fs from "fs";
 import { FUNCTIONS } from "./functions";
 import fetch from "node-fetch";
-import { AddressInfo } from 'net'
-
+import { AddressInfo } from "net";
 
 const app = express();
 app.use(cors());
@@ -45,10 +44,15 @@ FUNCTIONS.map((func) => {
       node,
       inputs,
       id,
-    }: { node: FlowNodeData; inputs: Json[]; id: number } =
-      req.body;
+      dispatcherurl,
+    }: {
+      node: FlowNodeData;
+      inputs: Json[];
+      id: number;
+      dispatcherurl?: string;
+    } = req.body;
 
-    const url = "http://" +  process.env.DISPATCHER_URL;
+    const url = dispatcherurl ?? "http://" + process.env.DISPATCHER_URL;
 
     res.send("Ok");
 
@@ -84,22 +88,22 @@ FUNCTIONS.map((func) => {
 
 if (process.env.NODE_ENV === "production") {
   app.listen(80, () => {
-      console.log(`🚀 Server ready at: http://localhost`);
+    console.log(`🚀 Server ready at: http://localhost`);
   });
-}else{
+} else {
   let port;
   fs.readFile(".port", (err, data) => {
-    if (err){
+    if (err) {
       port = 0;
-      console.log("Assigning random available port.")
+      console.log("Assigning random available port.");
     } else {
       port = parseInt(data.toString());
     }
 
     const server = app.listen(port, () => {
-      const { port } = server.address() as AddressInfo
+      const { port } = server.address() as AddressInfo;
       console.log(`🚀 Extension Running at http://localhost:${port}`);
-      if(process.env.NODE_ENV !== "production"){
+      if (process.env.NODE_ENV !== "production") {
         fs.writeFile(".port", port.toString(), (err) => {
           if (err) throw err;
         });
@@ -107,6 +111,3 @@ if (process.env.NODE_ENV === "production") {
     });
   });
 }
-
-
-
