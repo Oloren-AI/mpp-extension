@@ -15,4 +15,6 @@ COPY . .
 
 EXPOSE 80
 
+ENV NODE_ENV=production
+
 CMD ["pnpm", "turbo", "dev"]

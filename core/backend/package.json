@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node -r esbuild-register ./src/index.ts",
-    "dev": "nodemon --exec \"node -r esbuild-register ./src/index.ts\" -e .ts",
+    "dev": "rm -f .port && nodemon --exec \"node -r esbuild-register ./src/index.ts\" -e .ts",
     "build": "esbuild ./src/index.ts --bundle --minify --platform=node --outfile=index.js"
   },
   "keywords": [],
