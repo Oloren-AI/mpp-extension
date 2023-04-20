@@ -1,11 +1,14 @@
 import cors from "cors";
 import express from "express";
-import { FlowNodeData, Json } from "./util";
+import { FlowNodeData, Json, fileSchema } from "./util";
 import fs from "fs";
 import { FUNCTIONS } from "./functions";
 import fetch from "node-fetch";
 import FormData from "form-data";
 import { AddressInfo } from "net";
+import { z } from "zod";
+import https from "https";
+import tmp from "tmp";
 
 const app = express();
 app.use(cors());
@@ -39,6 +42,21 @@ app.get("/directory", (req, res) => {
   });
 });
 
+async function downloadFromSignedUrl(
+  signedUrl: string
+): Promise<tmp.FileResult> {
+  const tmpFile = tmp.fileSync();
+  const file = fs.createWriteStream(tmpFile.name);
+  const response = await fetch(signedUrl);
+  return new Promise((resolve, reject) => {
+    response.body?.pipe(file);
+    file.on("finish", () => {
+      file.close();
+      resolve(tmpFile);
+    });
+  });
+}
+
 FUNCTIONS.map((func) => {
   app.post(`/operator/${func.name}`, async (req, res) => {
     const {
@@ -58,34 +76,59 @@ FUNCTIONS.map((func) => {
     res.send("Ok");
 
     try {
-      const output = func(node, inputs);
+      let tempFiles: tmp.FileResult[] = [];
+      const mappedInputs = await Promise.all(
+        inputs.map(async (value) => {
+          const fileParse = z
+            .object({ reserved: z.literal("file"), url: z.string().url() })
+            .safeParse(value);
+          if (fileParse.success) {
+            const tmp = await downloadFromSignedUrl(fileParse.data.url);
+            tempFiles.push(tmp);
+            return { path: tmp.name };
+          } else return value;
+        })
+      );
 
-      let mappedOutputs = output.map(async (value) => {
-        if (value instanceof File) {
-          const file = value as File;
-          const form = new FormData();
-          form.append("file", file);
-          const response = await fetch(`${url}/upload`, {
-            method: "POST",
-            body: form,
-            headers: form.getHeaders(),
-          });
-          return await response.json();
+      const output = await func(node, mappedInputs);
+      let filepaths: string[] = [];
+      const form = new FormData();
+      let filePresent = false;
+
+      let mappedOutput = output.map((value, idx) => {
+        const fileParse = fileSchema.safeParse(value);
+        if (fileParse.success) {
+          filePresent = true;
+          filepaths.push(fileParse.data.path);
+          form.append(idx.toString(), fs.createReadStream(fileParse.data.path));
+          return "TO BE REPLACED BY FILE";
         } else return value;
       });
 
-      console.log("Finished with output ", output);
+      if (filePresent) {
+        form.append("node", JSON.stringify(id));
+        form.append("output", JSON.stringify(mappedOutput));
 
-      fetch(`${url}/node_finished`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          node: id,
-          output: output,
-        }),
-      });
+        await fetch(`${url}/node_finished_file`, {
+          method: "POST",
+          headers: form.getHeaders(),
+          body: form,
+        });
+
+        filepaths.forEach(fs.unlinkSync);
+      } else {
+        fetch(`${url}/node_finished`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            node: id,
+            output: mappedOutput,
+          }),
+        });
+      }
+      tempFiles.forEach((tmp) => tmp.removeCallback());
     } catch (e) {
       fetch(`${url}/node_error`, {
         method: "POST",

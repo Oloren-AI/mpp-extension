@@ -1,7 +1,15 @@
-import type { FlowNodeData, Json, OrchestratorFunction } from "./util";
+import {
+  fileSchema,
+  type File,
+  type FlowNodeData,
+  type Json,
+  type OrchestratorFunction,
+} from "./util";
+import { Buffer } from "buffer";
 import { z } from "zod";
+import fs from "fs";
 
-function operation(node: FlowNodeData, inputs: Json[]) {
+async function operation(node: FlowNodeData, inputs: (Json | File)[]) {
   const parsedInputs = z.array(z.number()).length(2).safeParse(inputs);
 
   if (parsedInputs.success) {
@@ -23,8 +31,15 @@ function operation(node: FlowNodeData, inputs: Json[]) {
     );
 }
 
-function foo(node: FlowNodeData, inputs: Json[]) {
-  return inputs;
+async function foo(node: FlowNodeData, inputs: (Json | File)[]) {
+  fs.writeFileSync("blah.txt", "Hello world!");
+  return [{ path: "blah.txt" }];
 }
 
-export const FUNCTIONS: OrchestratorFunction[] = [operation, foo];
+async function bar(node: FlowNodeData, inputs: (Json | File)[]) {
+  const f = fileSchema.parse(inputs[0]);
+  const data = fs.readFileSync(f.path).toString();
+  return [`File contents: ${data}`];
+}
+
+export const FUNCTIONS: OrchestratorFunction[] = [operation, foo, bar];
