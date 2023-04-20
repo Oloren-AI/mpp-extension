@@ -4,6 +4,7 @@ import { FlowNodeData, Json } from "./util";
 import fs from "fs";
 import { FUNCTIONS } from "./functions";
 import fetch from "node-fetch";
+import FormData from "form-data";
 
 const PORT = 80;
 
@@ -40,20 +41,33 @@ app.get("/directory", (req, res) => {
 });
 
 FUNCTIONS.map((func) => {
-  app.post(`/operator/${func.name}`, (req, res) => {
+  app.post(`/operator/${func.name}`, async (req, res) => {
     const {
       node,
       inputs,
       id,
-    }: { node: FlowNodeData; inputs: Json[]; id: number } =
-      req.body;
+    }: { node: FlowNodeData; inputs: Json[]; id: number } = req.body;
 
-    const url = "http://" +  process.env.DISPATCHER_URL;
+    const url = "http://" + process.env.DISPATCHER_URL;
 
     res.send("Ok");
 
     try {
       const output = func(node, inputs);
+
+      let mappedOutputs = output.map(async (value) => {
+        if (value instanceof File) {
+          const file = value as File;
+          const form = new FormData();
+          form.append("file", file);
+          const response = await fetch(`${url}/upload`, {
+            method: "POST",
+            body: form,
+            headers: form.getHeaders(),
+          });
+          return await response.json();
+        } else return value;
+      });
 
       console.log("Finished with output ", output);
 
