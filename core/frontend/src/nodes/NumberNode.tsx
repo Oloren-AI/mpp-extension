@@ -1,13 +1,7 @@
 import React, { useEffect } from "react";
 import { InputNumber } from "antd";
 import { z } from "zod";
-import type { FlowNodeData, NodeSetter } from "../util";
-
-interface NodeProps {
-  node: FlowNodeData;
-  setNode: NodeSetter;
-  callAfterUpdateInpOuts?: () => void;
-}
+import type { FlowNodeData, NodeProps, NodeSetter } from "../util";
 
 export default function NumberNode({
   callAfterUpdateInpOuts = () => {},

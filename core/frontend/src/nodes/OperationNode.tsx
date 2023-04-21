@@ -1,16 +1,10 @@
+import { Select, Typography } from "antd";
 import React, { useEffect } from "react";
-import { Typography, Select } from "antd";
 import { z } from "zod";
 
 const { Text } = Typography;
 
-import { baseUrl, type FlowNodeData, type NodeSetter } from "../util";
-
-interface NodeProps {
-  node: FlowNodeData;
-  setNode: NodeSetter;
-  callAfterUpdateInpOuts?: () => void;
-}
+import { NodeProps, baseUrl } from "../util";
 
 export default function OperationNode({
   callAfterUpdateInpOuts = () => {},

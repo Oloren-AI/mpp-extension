@@ -1,8 +1,8 @@
 type Json = string | number | boolean | Json[] | { [key: string]: Json };
 
-export interface FlowNodeData {
+export interface FlowNodeData<T = Json> {
   id: string;
-  data: Json;
+  data: T;
   num_inputs: number;
   num_outputs: number;
   operator: string;
@@ -17,7 +17,15 @@ export interface FlowNodeData {
   };
 }
 
-export type NodeSetter = React.Dispatch<React.SetStateAction<FlowNodeData>>;
+export interface NodeProps<T = Json> {
+  node: FlowNodeData<T>;
+  setNode: NodeSetter<T>;
+  callAfterUpdateInpOuts?: () => void;
+}
+
+export type NodeSetter<T = Json> = React.Dispatch<
+  React.SetStateAction<FlowNodeData<T>>
+>;
 
 export function baseUrl(url: string) {
   const pathArray = url.split("/");

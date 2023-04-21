@@ -2,6 +2,7 @@
   "name": "calculator",
   "nodes": {
     "./nodes/OperationNode": "./src/nodes/OperationNode",
-    "./nodes/NumberNode": "./src/nodes/NumberNode"
+    "./nodes/NumberNode": "./src/nodes/NumberNode",
+    "./nodes/InputNode": "./src/nodes/InputNode"
   }
 }

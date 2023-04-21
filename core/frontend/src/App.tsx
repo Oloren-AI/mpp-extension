@@ -1,8 +1,9 @@
 import React from "react";
 import NumberNode from "./nodes/NumberNode";
 import type { FlowNodeData, NodeSetter } from "./util";
-import { Typography } from "antd";
+import { Input, Typography } from "antd";
 import OperationNode from "./nodes/OperationNode";
+import InputNode from "./nodes/InputNode";
 
 const { Title } = Typography;
 
@@ -38,8 +39,9 @@ function NodeTester({
   );
 }
 
-export const Components = [NumberNode, OperationNode] as const;
+export const Components = [NumberNode, OperationNode, InputNode] as const;
 
 export default function App() {
+  // return <p>Hello</p>;
   return Components.map((Node, i) => <NodeTester key={i} Node={Node} />);
 }
