@@ -1,8 +1,9 @@
 {
   "name": "calculator",
   "nodes": {
-    "./nodes/OperationNode": "./src/nodes/OperationNode",
-    "./nodes/NumberNode": "./src/nodes/NumberNode",
-    "./nodes/InputNode": "./src/nodes/InputNode"
+    "Math Operations": "./src/nodes/OperationNode",
+    "Numbers": "./src/nodes/NumberNode",
+    "Inputs": "./src/nodes/InputNode",
+    "Display Image": "./src/nodes/ImageNode"
   }
 }

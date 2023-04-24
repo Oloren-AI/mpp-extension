@@ -1,35 +1,43 @@
+import { Input } from "antd";
 import React, { useEffect } from "react";
-import { Input, InputNumber } from "antd";
 import { z } from "zod";
-import type { FlowNodeData, NodeProps, NodeSetter } from "../util";
+import type { Json } from "../../../backend/src/util";
+import type { FlowNodeData, NodeProps } from "../util";
 
 const dataSchema = z
   .object({
     name: z.string().default(""),
     placeholder: z.string().default(""),
-    value: z.string().default(""),
   })
   .default({});
 
-function RemoteUI({ node, setNode }: NodeProps<z.infer<typeof dataSchema>>) {
+function RemoteUI({
+  inputs,
+  outputs,
+  setOutputs,
+  node,
+}: {
+  inputs: Json[];
+  node: FlowNodeData<z.infer<typeof dataSchema>>;
+  outputs: Json[] | undefined;
+  setOutputs: React.Dispatch<React.SetStateAction<Json[]>>;
+}) {
   const data = dataSchema.parse(node.data);
-  console.log(data);
+  const outputsParse = z.array(z.string()).length(1).safeParse(outputs);
+
   return (
     <Input
       addonBefore={data.name}
       placeholder={data.placeholder}
-      value={data.value}
+      value={outputsParse.success ? (outputsParse.data[0] as string) : ""}
       onChange={(e) => {
-        setNode((nd) => ({
-          ...nd,
-          data: { ...nd.data, value: e.target.value },
-        }));
+        setOutputs([e.target.value]);
       }}
     />
   );
 }
 
-export default function InputNode({
+function InputNode({
   callAfterUpdateInpOuts = () => {},
   node,
   setNode,
@@ -39,11 +47,11 @@ export default function InputNode({
   useEffect(() => {
     setNode((nd) => ({
       ...nd,
-      data: { name: "", placeholder: "", value: "" },
-      operator: "extractdata",
+      data: { name: "", placeholder: "" },
+      operator: "ui",
       num_inputs: 0,
       num_outputs: 1,
-      ui: RemoteUI,
+      subcomponents: { ui: RemoteUI },
     }));
     callAfterUpdateInpOuts();
   }, []);
@@ -75,3 +83,5 @@ export default function InputNode({
     </div>
   );
 }
+
+export default InputNode;

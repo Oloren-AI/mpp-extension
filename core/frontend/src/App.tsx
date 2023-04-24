@@ -39,9 +39,8 @@ function NodeTester({
   );
 }
 
-export const Components = [NumberNode, OperationNode, InputNode] as const;
+export const Components = [NumberNode, OperationNode] as const;
 
 export default function App() {
-  // return <p>Hello</p>;
   return Components.map((Node, i) => <NodeTester key={i} Node={Node} />);
 }
