@@ -9,15 +9,17 @@ export default function NumberNode({
   setNode,
 }: NodeProps) {
   useEffect(() => {
-    setNode((nd) => ({
-      ...nd,
-      data: 0,
-      operator: "extractdata",
-      num_inputs: 0,
-      num_outputs: 1,
-    }));
-    callAfterUpdateInpOuts();
-  }, []);
+    if (!z.number().safeParse(node.data).success) {
+      setNode((nd) => ({
+        ...nd,
+        data: 0,
+        operator: "extractdata",
+        num_inputs: 0,
+        num_outputs: 1,
+      }));
+      callAfterUpdateInpOuts();
+    }
+  }, [node]);
 
   const val = z.number().safeParse(node.data) ? (node.data as number) : 0;
 

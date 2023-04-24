@@ -42,4 +42,14 @@ async function bar(node: FlowNodeData, inputs: (Json | File)[]) {
   return [`File contents: ${data}`];
 }
 
-export const FUNCTIONS: OrchestratorFunction[] = [operation, foo, bar];
+const map: OrchestratorFunction = async (node, inputs, run) => {
+  const input_list = z.array(z.any()).parse(inputs[0]);
+  console.log("inputs: ", inputs);
+  return [
+    (await Promise.all(input_list.map((inp) => run([inp], inputs[1])))).map(
+      (x) => x[0]
+    ),
+  ];
+};
+
+export const FUNCTIONS: OrchestratorFunction[] = [operation, foo, bar, map];

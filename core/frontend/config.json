@@ -4,6 +4,7 @@
     "Math Operations": "./src/nodes/OperationNode",
     "Numbers": "./src/nodes/NumberNode",
     "Inputs": "./src/nodes/InputNode",
-    "Display Image": "./src/nodes/ImageNode"
+    "Display Image": "./src/nodes/ImageNode",
+    "Map": "./src/nodes/Map"
   }
 }

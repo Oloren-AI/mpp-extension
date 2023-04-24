@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import { FlowNodeData, Json, fileSchema } from "./util";
+import { FlowNodeData, Json, fileSchema, runGraph } from "./util";
 import fs from "fs";
 import { FUNCTIONS } from "./functions";
 import fetch from "node-fetch";
@@ -90,7 +90,11 @@ FUNCTIONS.map((func) => {
         })
       );
 
-      const output = await func(node, mappedInputs);
+      const runFunction = async (inputs: Json[], graphJson: Json) => {
+        return await runGraph(id, inputs, graphJson, url);
+      };
+
+      const output = await func(node, mappedInputs, runFunction);
       let filepaths: string[] = [];
       const form = new FormData();
       let filePresent = false;
@@ -130,6 +134,7 @@ FUNCTIONS.map((func) => {
       }
       tempFiles.forEach((tmp) => tmp.removeCallback());
     } catch (e) {
+      console.log("Error in operator ", (e as Error).stack);
       fetch(`${url}/node_error`, {
         method: "POST",
         headers: {
