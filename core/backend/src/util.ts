@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Socket, io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
+import fetch from "node-fetch";
 
 export type Json = string | number | boolean | Json[] | { [key: string]: Json };
 const literalSchema = z.union([z.string(), z.number(), z.boolean()]);
