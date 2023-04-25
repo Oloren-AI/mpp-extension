@@ -38,6 +38,4 @@ function DisplayImage({ outputs }: { outputs: Json[] }) {
   return <img src={imageUrl}></img>;
 }
 
-ImageNode.DisplayOutput = DisplayImage;
-
 export default ImageNode;

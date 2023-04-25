@@ -5,6 +5,7 @@
     "Numbers": "./src/nodes/NumberNode",
     "Inputs": "./src/nodes/InputNode",
     "Display Image": "./src/nodes/ImageNode",
-    "Map": "./src/nodes/Map"
+    "Map": "./src/nodes/Map",
+    "Upload File": "./src/nodes/FileUploadNode"
   }
 }

@@ -1,9 +1,10 @@
-import { Button, Upload } from "antd";
+import { Button, Typography, Upload } from "antd";
 import React, { useEffect, useState } from "react";
 import { z } from "zod";
 import type { Json } from "../../../backend/src/util";
 import type { FlowNodeData, NodeProps } from "../util";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, DownloadOutlined } from "@ant-design/icons";
+import { RcFile } from "antd/es/upload";
 
 const dataSchema = z.any();
 
@@ -15,18 +16,45 @@ function RemoteUI({
 }: {
   inputs: Json[];
   node: FlowNodeData<z.infer<typeof dataSchema>>;
-  outputs: Json[] | undefined;
-  setOutputs: React.Dispatch<React.SetStateAction<Json[]>>;
+  outputs: (Json | File)[] | undefined;
+  setOutputs: React.Dispatch<React.SetStateAction<(Json | File)[]>>;
 }) {
-  const [file, setFile] = useState<File | null>(null);
-
   return (
     <div className="w-full flex flex-col space-y-2">
-      <div>{file ? file.name : "No file uploaded"}</div>
-      <Upload beforeUpload={(file) => setFile(file)}>
+      <div>{outputs ? (outputs[0] as File).name : "No file uploaded"}</div>
+      <Upload
+        customRequest={({ file, onSuccess }) => {
+          const f = file as RcFile;
+          setOutputs([f]);
+          if (onSuccess) onSuccess({});
+        }}
+      >
         <Button icon={<UploadOutlined />}>Upload File</Button>
       </Upload>
     </div>
+  );
+}
+
+function DownloadFile({
+  outputs,
+  download,
+}: {
+  outputs: Json[];
+  download?: (url: String) => void;
+}) {
+  const f = z
+    .object({ reserved: z.literal("file"), url: z.string().url() })
+    .parse(outputs[0]);
+
+  return (
+    <Button
+      icon={<DownloadOutlined />}
+      onClick={() => {
+        if (download) download(f.url);
+      }}
+    >
+      Download File
+    </Button>
   );
 }
 
@@ -44,14 +72,14 @@ function FileUploadNode({
       operator: "ui",
       num_inputs: 0,
       num_outputs: 1,
-      subcomponents: { ui: RemoteUI },
+      subcomponents: { ui: RemoteUI, output: DownloadFile },
     }));
     callAfterUpdateInpOuts();
   }, []);
 
   return (
     <div tw="flex flex-col space-y-2">
-      <div>File Upload</div>
+      <Typography.Text>File Upload</Typography.Text>
     </div>
   );
 }
