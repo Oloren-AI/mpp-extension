@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { InputNumber, Typography } from "antd";
-import { z } from "zod";
 import {
   baseUrl,
   type FlowNodeData,
   type NodeProps,
   type NodeSetter,
 } from "../util";
+import { z } from "zod";
 
 export default function NumberNode({
   callAfterUpdateInpOuts = () => {},

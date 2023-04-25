@@ -7,7 +7,7 @@
     "paths": {
       "*": ["./@mf-types/*"]
     },
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
   },
   "include": ["src/**/*"]
 }

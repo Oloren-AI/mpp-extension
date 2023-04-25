@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Input, InputNumber, Typography } from "antd";
 import { z } from "zod";
 import type { FlowNodeData, NodeProps, NodeSetter } from "../util";
-import { Json } from "../../../backend/src/util";
+import type { Json } from "../../../backend/src/util";
 
 function ImageNode({
   callAfterUpdateInpOuts = () => {},

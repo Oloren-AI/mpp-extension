@@ -32,7 +32,7 @@ app.get("/directory", (req, res) => {
     res.send({
       nodes: nodes.map((node) => ({
         module: node,
-        scope: config["name"], // TODO: auto extract this from some json file
+        scope: config["name"],
         url: `/ui/remoteEntry.js`,
       })),
       operators: Object.fromEntries(
