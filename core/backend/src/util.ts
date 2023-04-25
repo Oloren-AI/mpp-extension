@@ -62,7 +62,7 @@ export async function runGraph(
   inputs: Json[],
   graph: Json,
   dispatcherUrl: string,
-  timeoutMs: number = 5000
+  timeoutMs: number = 500000
 ): Promise<(Json | File)[]> {
   console.log("Running graph: ", JSON.stringify(graph, null, 2));
   const parsedGraph = nodeSchema.parse(graph);
