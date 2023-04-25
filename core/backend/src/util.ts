@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Socket, io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
+import fetch from "node-fetch";
 
 export type Json = string | number | boolean | Json[] | { [key: string]: Json };
 const literalSchema = z.union([z.string(), z.number(), z.boolean()]);
@@ -61,7 +62,7 @@ export async function runGraph(
   inputs: Json[],
   graph: Json,
   dispatcherUrl: string,
-  timeoutMs: number = 5000
+  timeoutMs: number = 500000
 ): Promise<(Json | File)[]> {
   console.log("Running graph: ", JSON.stringify(graph, null, 2));
   const parsedGraph = nodeSchema.parse(graph);

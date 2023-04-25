@@ -162,7 +162,7 @@ if (process.env.NODE_ENV === "production") {
     } else {
       port = parseInt(data.toString());
     }
-
+    console.log("Launching port at ", port)
     const server = app.listen(port, () => {
       const { port } = server.address() as AddressInfo;
       console.log(`🚀 Extension Running at http://localhost:${port}`);
