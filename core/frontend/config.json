@@ -1,0 +1,11 @@
+{
+  "name": "calculator",
+  "nodes": {
+    "Math Operations": "./src/nodes/OperationNode",
+    "Numbers": "./src/nodes/NumberNode",
+    "Inputs": "./src/nodes/InputNode",
+    "Display Image": "./src/nodes/ImageNode",
+    "Map": "./src/nodes/Map",
+    "Upload File": "./src/nodes/FileUploadNode"
+  }
+}
