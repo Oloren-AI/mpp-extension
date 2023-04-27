@@ -6,7 +6,16 @@ import {
   TableOutlined,
   UndoOutlined,
 } from "@ant-design/icons";
-import { Button, Input, Typography, Upload } from "antd";
+import {
+  Button,
+  Carousel,
+  Input,
+  InputNumber,
+  Result,
+  Spin,
+  Typography,
+  Upload,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { z } from "zod";
 import type { Json } from "../../../backend/src/util";
@@ -18,31 +27,86 @@ import { RDKitModule } from "@rdkit/rdkit";
 const rdkitAtom = atom<RDKitModule | null>(null);
 const inferStateAtom = atom<InferInput | null>(null);
 
+export const urlCache = new Set();
+
+const useDynamicScript = (url: string) => {
+  const [ready, setReady] = React.useState(false);
+  const [errorLoading, setErrorLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!url) return;
+
+    if (urlCache.has(url)) {
+      setReady(true);
+      setErrorLoading(false);
+      return;
+    }
+
+    setReady(false);
+    setErrorLoading(false);
+
+    const element = document.createElement("script");
+
+    element.src = url;
+    element.type = "text/javascript";
+    element.async = true;
+
+    element.onload = () => {
+      urlCache.add(url);
+      setReady(true);
+    };
+
+    element.onerror = () => {
+      setReady(false);
+      setErrorLoading(true);
+    };
+
+    document.head.appendChild(element);
+
+    return () => {
+      urlCache.delete(url);
+      document.head.removeChild(element);
+    };
+  }, [url]);
+
+  return {
+    errorLoading,
+    ready,
+  };
+};
+
 interface InferInput {
   smiles: string[];
   invalid: string[];
   status?: string;
+  source?: "input" | "file";
   data?: any;
 }
 
 function SmilesInput() {
   const [rdkit] = useAtom(rdkitAtom);
   const [smiles, setSmiles] = useState<string>("");
-  const [, setInferInput] = useAtom(inferStateAtom);
+  const [inferInput, setInferInput] = useAtom(inferStateAtom);
   const [valid, setValid] = useState<boolean>(false);
 
   useEffect(() => {
-    if (rdkit) {
+    if (inferInput?.source === "file") {
+      setSmiles("");
+    }
+  }, [inferInput]);
+
+  useEffect(() => {
+    if (rdkit && !(inferInput?.source === "file" && smiles === "")) {
       const v = validateSMILES(smiles, rdkit);
       setValid(v);
       if (!v) setInferInput(null);
-      else setInferInput({ smiles: [smiles], invalid: [] });
+      else setInferInput({ smiles: [smiles], invalid: [], source: "input" });
     }
   }, [smiles, rdkit]);
 
   return (
-    <div className="flex flex-col space-y-2 pt-1">
-      <label className="text-lg font-semibold">Enter SMILES</label>
+    <div tw="flex flex-col space-y-2 pt-1">
+      <label tw="text-lg font-semibold">Enter SMILES</label>
       <Input
         placeholder="SMILES Strings"
         value={smiles}
@@ -53,9 +117,9 @@ function SmilesInput() {
         }}
         suffix={
           valid ? (
-            <CheckCircleOutlined className="text-green-700" />
+            <CheckCircleOutlined tw="text-green-700" />
           ) : smiles ? (
-            <CloseCircleOutlined className="text-red-700" />
+            <CloseCircleOutlined tw="text-red-700" />
           ) : (
             <span />
           )
@@ -82,51 +146,79 @@ function FileInput() {
   const [rdkit] = useAtom(rdkitAtom);
 
   useEffect(() => {
+    if (inferInput?.source === "input") {
+      setFile(null);
+    }
+  }, [inferInput]);
+
+  useEffect(() => {
     if (file && rdkit && !inferInput) {
-      Papa.parse(file, {
-        complete: (results) => {
-          const table = z.array(z.array(z.string()).min(1)).parse(results.data);
-          const columnCounts = Array<number>(table[0].length).fill(0);
-          const rowIndicies = Array.from({ length: 10 }, () =>
-            Math.floor(Math.random() * table.length)
-          );
-
-          for (const rowIdx of rowIndicies) {
-            for (const colIdx of Array.from(
-              { length: columnCounts.length },
-              (_, i) => i
-            )) {
-              columnCounts[colIdx] += validateSMILES(
-                table[rowIdx][colIdx],
-                rdkit
-              )
-                ? 1
-                : 0;
-            }
-          }
-
-          const maxIdx = columnCounts.indexOf(Math.max(...columnCounts));
-
-          const startRow = validateSMILES(table[0][maxIdx], rdkit) ? 0 : 1;
-
-          const allSmiles = table.slice(startRow).map((row) => row[maxIdx]);
-          const invalidSmiles = allSmiles.filter(
-            (smiles) => !validateSMILES(smiles, rdkit)
-          );
-
-          setInferInput({ smiles: allSmiles, invalid: invalidSmiles });
-        },
-      });
     }
   }, [file, validateSMILES, rdkit]);
 
-  return (
+  return file ? (
+    <Result
+      status="success"
+      subTitle={`Uploaded ${file.name}`}
+      extra={
+        <Button
+          icon={<DeleteOutlined />}
+          danger={true}
+          onClick={() => {
+            setFile(null);
+            setInferInput(null);
+          }}
+        >
+          Discard File
+        </Button>
+      }
+    />
+  ) : (
     <Upload.Dragger
       accept=".csv"
       multiple={false}
+      disabled={file !== null}
+      showUploadList={false}
       customRequest={({ file, onSuccess }) => {
+        if (!rdkit) return;
         const f = file as File;
         setFile(f);
+        Papa.parse(f, {
+          complete: (results) => {
+            const table = z
+              .array(z.array(z.string()).min(1))
+              .parse(results.data);
+            const columnCounts = Array<number>(table[0].length).fill(0);
+            const rowIndicies = Array.from({ length: 10 }, () =>
+              Math.floor(Math.random() * table.length)
+            );
+
+            for (const rowIdx of rowIndicies) {
+              for (const colIdx of Array.from(
+                { length: columnCounts.length },
+                (_, i) => i
+              )) {
+                columnCounts[colIdx] += validateSMILES(
+                  table[rowIdx][colIdx],
+                  rdkit
+                )
+                  ? 1
+                  : 0;
+              }
+            }
+
+            const maxIdx = columnCounts.indexOf(Math.max(...columnCounts));
+
+            const startRow = validateSMILES(table[0][maxIdx], rdkit) ? 0 : 1;
+
+            const allSmiles = table.slice(startRow).map((row) => row[maxIdx]);
+            const invalidSmiles = allSmiles.filter(
+              (smiles) => !validateSMILES(smiles, rdkit)
+            );
+
+            setInferInput({ smiles: allSmiles, invalid: invalidSmiles });
+          },
+        });
         if (onSuccess) onSuccess({});
       }}
     >
@@ -157,13 +249,13 @@ function InvalidCorrector() {
   }, [inferInput]);
 
   return inferInput && state && valid && rdkit ? (
-    <div className="flex w-full flex-col space-y-2">
-      <label className="text-lg font-semibold">Fix Invalid SMILES</label>
+    <div tw="flex w-full flex-col space-y-2">
+      <label tw="text-lg font-semibold">Fix Invalid SMILES</label>
       {state.invalid.map((smiles, idx) => {
         return (
-          <div className="flex w-full flex-row space-x-2">
+          <div tw="flex w-full flex-row space-x-2">
             <Input
-              className="grow"
+              tw="grow"
               placeholder="SMILES Strings"
               value={smiles}
               disabled={deleted[idx]}
@@ -178,16 +270,16 @@ function InvalidCorrector() {
               key={idx}
               suffix={
                 valid[idx] || deleted[idx] ? (
-                  <CheckCircleOutlined className="text-green-700" />
+                  <CheckCircleOutlined tw="text-green-700" />
                 ) : smiles ? (
-                  <CloseCircleOutlined className="text-red-700" />
+                  <CloseCircleOutlined tw="text-red-700" />
                 ) : (
                   <span />
                 )
               }
             />
             <Button
-              className="inline-flex items-center"
+              tw="inline-flex items-center"
               onClick={() =>
                 setDeleted(deleted.map((d, i) => (i === idx ? !d : d)))
               }
@@ -198,7 +290,7 @@ function InvalidCorrector() {
         );
       })}
       <Button
-        className="w-full"
+        tw="w-full"
         disabled={!fixedAll}
         onClick={() => {
           const allSmiles: (string | null)[] = inferInput.smiles;
@@ -232,31 +324,18 @@ function RemoteUI({
   outputs: (Json | File)[] | null;
   setOutputs: React.Dispatch<React.SetStateAction<(Json | File)[] | null>>;
 }) {
-  const [rdkit, setRDKit] = useAtom(rdkitAtom);
   const [inferState] = useAtom(inferStateAtom);
+  const [rdkit, setRDKit] = useAtom(rdkitAtom);
 
   useEffect(() => {
-    if (inferState && inferState.invalid.length > 0)
+    if (inferState && inferState.invalid.length === 0)
       setOutputs([inferState.smiles]);
     else setOutputs(null);
   }, [inferState]);
 
-  useEffect(() => {
-    if (!rdkit && window && window.initRDKitModule) {
-      window
-        .initRDKitModule()
-        .then((RDKit) => {
-          alert("RDKit loaded");
-          console.log("Loading rdkit...");
-          setRDKit(RDKit);
-        })
-        .catch((e) => {
-          console.error("Error loading RDKit", e);
-        });
-    }
-  }, [rdkit, setRDKit]);
+  useRdkit(rdkit, setRDKit);
 
-  return (
+  return rdkit ? (
     <div tw="w-full flex flex-col space-y-2">
       <div tw="flex w-full flex-row items-center space-x-4">
         <div tw="h-fit w-1/2">
@@ -270,29 +349,75 @@ function RemoteUI({
         <InvalidCorrector />
       ) : null}
     </div>
+  ) : (
+    <div tw="w-full h-fit pb-12">
+      <Spin tip="Loading" size="large">
+        <div className="content" />
+      </Spin>
+    </div>
   );
 }
 
-function DownloadFile({
+function useRdkit(rdkit: any, setRDKit: any) {
+  const { ready, errorLoading } = useDynamicScript(
+    "https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"
+  );
+
+  useEffect(() => {
+    if (!rdkit && ready) {
+      window
+        .initRDKitModule()
+        .then((RDKit) => {
+          console.log("Loading rdkit...");
+          setRDKit(RDKit);
+        })
+        .catch((e) => {
+          console.error("Error loading RDKit", e);
+        });
+    }
+  }, [rdkit, ready]);
+}
+
+function ViewMolecules({
   outputs,
   download,
 }: {
   outputs: Json[];
   download?: (url: String) => void;
 }) {
-  const f = z
-    .object({ reserved: z.literal("file"), url: z.string().url() })
-    .parse(outputs[0]);
+  const x = z.array(z.string()).parse(outputs[0]); // get first 4
+  const [idx, setIdx] = useState(0);
+  const [rdkit, setRdkit] = useAtom(rdkitAtom);
+  useRdkit(rdkit, setRdkit);
 
-  return (
-    <Button
-      icon={<DownloadOutlined />}
-      onClick={() => {
-        if (download) download(f.url);
-      }}
-    >
-      Download File
-    </Button>
+  const [svg, setSVG] = useState<undefined | string>(undefined);
+
+  useEffect(() => {
+    if (rdkit && !svg) {
+      const mol = rdkit?.get_mol(x[idx]);
+      setSVG(mol.get_svg());
+      mol.delete();
+    }
+  }, [rdkit, svg]);
+
+  return svg ? (
+    <div tw="w-full flex flex-col space-y-2" className="nodrag">
+      <div dangerouslySetInnerHTML={{ __html: svg }}></div>
+      <InputNumber
+        tw="w-full"
+        min={0}
+        max={x.length - 1}
+        value={idx}
+        onChange={(e) => {
+          if (e !== null) {
+            setIdx(e);
+            setSVG(undefined);
+          }
+        }}
+      />
+    </div>
+  ) : (
+    <Typography.Text>Loading...</Typography.Text>
   );
 }
 
@@ -310,7 +435,7 @@ export default function InputMolecules({
       operator: "ui",
       num_inputs: 0,
       num_outputs: 1,
-      subcomponents: { ui: RemoteUI, output: DownloadFile },
+      subcomponents: { ui: RemoteUI, output: ViewMolecules },
     }));
     callAfterUpdateInpOuts();
   }, []);

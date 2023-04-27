@@ -5,6 +5,7 @@
     "@babel/core": "7.20.12",
     "@babel/preset-react": "7.18.6",
     "@babel/preset-typescript": "7.18.6",
+    "@types/papaparse": "^5.3.7",
     "@types/react": "18.0.31",
     "@types/react-dom": "18.0.11",
     "@types/styled-components": "^5.1.26",
@@ -30,11 +31,15 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
+    "@rdkit/rdkit": "2022.9.5-1.0.0",
     "antd": "^5.4.2",
+    "jotai": "^2.0.4",
+    "papaparse": "^5.4.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-is": "^18.2.0",
     "reactflow": "^11.7.0",
+    "smiles-drawer": "2.0.3",
     "styled-components": "^5.3.9",
     "zod": "^3.21.4"
   }

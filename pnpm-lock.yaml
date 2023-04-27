@@ -55,6 +55,8 @@ importers:
       '@babel/core': 7.20.12
       '@babel/preset-react': 7.18.6
       '@babel/preset-typescript': 7.18.6
+      '@rdkit/rdkit': 2022.9.5-1.0.0
+      '@types/papaparse': ^5.3.7
       '@types/react': 18.0.31
       '@types/react-dom': 18.0.11
       '@types/styled-components': ^5.1.26
@@ -64,11 +66,14 @@ importers:
       babel-plugin-styled-components: ^2.1.1
       babel-plugin-twin: ^1.1.0
       html-webpack-plugin: 5.5.0
+      jotai: ^2.0.4
+      papaparse: ^5.4.1
       react: 18.2.0
       react-dom: 18.2.0
       react-is: ^18.2.0
       reactflow: ^11.7.0
       serve: 14.2.0
+      smiles-drawer: 2.0.3
       styled-components: ^5.3.9
       tailwindcss: ^3.3.1
       twin.macro: ^3.3.1
@@ -79,17 +84,22 @@ importers:
       zod: ^3.21.4
     dependencies:
       '@ant-design/icons': 5.0.1_biqbaboplfbrettd7655fr4n2y
+      '@rdkit/rdkit': 2022.9.5-1.0.0
       antd: 5.4.2_biqbaboplfbrettd7655fr4n2y
+      jotai: 2.0.4_react@18.2.0
+      papaparse: 5.4.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-is: 18.2.0
       reactflow: 11.7.0_biqbaboplfbrettd7655fr4n2y
+      smiles-drawer: 2.0.3
       styled-components: 5.3.9_7i5myeigehqah43i5u7wbekgba
       zod: 3.21.4
     devDependencies:
       '@babel/core': 7.20.12
       '@babel/preset-react': 7.18.6_@babel+core@7.20.12
       '@babel/preset-typescript': 7.18.6_@babel+core@7.20.12
+      '@types/papaparse': 5.3.7
       '@types/react': 18.0.31
       '@types/react-dom': 18.0.11
       '@types/styled-components': 5.1.26
@@ -918,6 +928,10 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
+  /@rdkit/rdkit/2022.9.5-1.0.0:
+    resolution: {integrity: sha512-+KWdMogu0Klsvdw1qeZHZpLnkfSVPqyvINrcfvu+mY9hpVXuiq2JrtfE/Pr/bF5/awN4oFG0YbQfOfsrxfU2qA==}
+    dev: false
+
   /@reactflow/background/11.2.0_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-Fd8Few2JsLuE/2GaIM6fkxEBaAJvfzi2Lc106HKi/ddX+dZs8NUsSwMsJy1Ajs8b4GbiX8v8axfKpbK6qFMV8w==}
     peerDependencies:
@@ -1294,6 +1308,12 @@ packages:
 
   /@types/node/18.15.11:
     resolution: {integrity: sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==}
+
+  /@types/papaparse/5.3.7:
+    resolution: {integrity: sha512-f2HKmlnPdCvS0WI33WtCs5GD7X1cxzzS/aduaxSu3I7TbhWlENjSPs6z5TaB9K0J+BH1jbmqTaM+ja5puis4wg==}
+    dependencies:
+      '@types/node': 18.15.11
+    dev: true
 
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -3126,6 +3146,18 @@ packages:
     hasBin: true
     dev: true
 
+  /jotai/2.0.4_react@18.2.0:
+    resolution: {integrity: sha512-XkR1Jtm4a2iKV/7fdB3rNHjJz8FkkDMVczqiAok7lt8W4F69l/ZQkPGWSEV+hJOJXRn27k6XYKOoKEQIwBuAMA==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -3484,6 +3516,10 @@ packages:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
     engines: {node: '>=6'}
     dev: true
+
+  /papaparse/5.4.1:
+    resolution: {integrity: sha512-HipMsgJkZu8br23pW15uvo6sib6wne/4woLZPlFf3rpDyMe9ywEXUsuD7+6K9PRkJlVT51j/sCOYDKGGS3ZJrw==}
+    dev: false
 
   /param-case/3.0.4:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
@@ -4643,6 +4679,10 @@ packages:
     dependencies:
       semver: 7.0.0
     dev: true
+
+  /smiles-drawer/2.0.3:
+    resolution: {integrity: sha512-G95FIAqeVyZOj5LlAE5QR0ERfGL5cOvx+LQfEGmtqVLQ8LypKRZ9TCo2Ne2lgqhFrdXQpftKf+79o6C0ItDMNg==}
+    dev: false
 
   /socket.io-client/4.6.1:
     resolution: {integrity: sha512-5UswCV6hpaRsNg5kkEHVcbBIXEYoVbMQaHJBXJCyEQ+CiFPV1NIOY0XOFWG4XR4GZcB8Kn6AsRs/9cy9TbqVMQ==}
