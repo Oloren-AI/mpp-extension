@@ -1,6 +1,7 @@
 {
   "name": "molecules",
   "nodes": {
-    "Input Molecules": "./src/nodes/InputMolecules"
+    "Input Molecules": "./src/nodes/InputMolecules",
+    "Display Molecule": "./src/nodes/DisplayMolecule"
   }
 }
